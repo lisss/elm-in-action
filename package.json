@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "build": "elm make src/**/*.elm --output elm.js"
+  }
+}
