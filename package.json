@@ -1,5 +1,8 @@
 {
   "scripts": {
     "build": "elm make src/**/*.elm --output elm.js"
+  },
+  "dependencies": {
+    "elm-format": "0.8.1"
   }
 }
