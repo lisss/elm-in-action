@@ -34,6 +34,7 @@ convert =
 
 
 -- Filter elements with non-empty name and email
+-- TODO: use Maybe.map
 
 
 convert02 :
@@ -49,6 +50,7 @@ convert02 =
 
 
 -- Fill in missing emails with <unspecified>, while removing elements with no name
+-- TODO: use Maybe.map
 
 
 convert03 :
@@ -241,59 +243,5 @@ buildStatsUrl itemId ps =
 {- Temperature converter
    check ./temp-converter/TemperatureConverter.elm & package.json to run it
 -}
--- Eight Queens
+-- TODO: Eight Queens
 -- Honestly stolen from somewhere on the Internet
-
-
-queens =
-    addQueen 7 8
-
-
-addQueen : Int -> Int -> List (List Int)
-addQueen newRow cols =
-    let
-        queenPuzzle r c =
-            if r <= 0 then
-                [ [] ]
-
-            else
-                addQueen (r - 1) c
-
-        prev =
-            queenPuzzle newRow cols
-    in
-    List.concatMap
-        (\solution ->
-            List.filterMap
-                (\newCol ->
-                    if not (hasConflict newRow newCol solution) then
-                        Just (solution ++ [ newCol ])
-
-                    else
-                        Nothing
-                )
-                (List.range 1 cols)
-        )
-        prev
-
-
-hasConflict : Int -> Int -> List Int -> Bool
-hasConflict newRow newCol solution =
-    List.foldl
-        (\i conflict ->
-            let
-                ithSolution =
-                    case Array.get i (Array.fromList solution) of
-                        Just value ->
-                            value
-
-                        Nothing ->
-                            0
-            in
-            conflict
-                || (ithSolution == newCol)
-                || (ithSolution + i == newCol + newRow)
-                || (ithSolution - i == newCol - newRow)
-        )
-        False
-        (List.range 0 newRow)
