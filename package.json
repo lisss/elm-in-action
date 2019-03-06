@@ -1,8 +1,13 @@
 {
   "scripts": {
-    "build": "elm make src/**/*.elm --output elm.js"
+    "build:photo": "elm make src/photo-groove/*.elm --output build/elm.js",
+    "build:tc": "elm make src/temp-converter/*.elm --output build/tc.js",
+    "dev:tc": "elm-live src/temp-converter/TemperatureConverter.elm --start-page=src/temp-converter/index.html -- --output build/tc.js"
   },
   "dependencies": {
     "elm-format": "0.8.1"
+  },
+  "devDependencies": {
+    "elm-live": "3.4.0"
   }
 }
