@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            html {
+                font-family: Lato;
+            }
+            body {
+                color: #4e4e4e;
+            }
+            body, button {
+                font-size: 1rem;
+            }
+            input {
+                font-size: .8rem;
+            }
+            input, button {
+                border-radius: .25rem;
+                border: 1px solid #ccc;
+                line-height: 1.2rem;
+                outline: none;
+            }
+            h1 {
+                font-size: 1.2rem;
+                color: #313131;
+            }
+            .container {
+                padding: 16px;
+                display: flex;
+                border: 1px solid #ccc;
+                border-radius: .25rem;
+            }
+            .label {
+                margin: 0 12px;
+            }
+            .timer-container {
+                width: 240px;
+                padding: 12px;
+                border: 1px solid #ccc;
+                border-radius: .25rem;
+            }
+            .elapsed, .slider {
+                margin: 12px 0;
+            }
+            .timer-label {
+                margin-right: 12px;
+            }
+            .elapsed {
+                display: flex;
+            }
+            .progress-container {
+                flex: 1;
+                display: flex;
+                border: 1px solid #ccc;
+                border-radius: .25rem;
+            }
+            .progressbar {
+                background-color: #34bb97;
+            }
+            .slider {
+                display: flex;
+                align-items: center;
+            }
+            .slider-scale {
+                width: 100%;
+            }
+            .reset-btn {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid  #ea4f3b;
+                background-color: #ea6756;
+                color: white;
+                border-radius: .25rem;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script src="build/index.js"></script>
+        <script>
+            Elm.Main.init({ node: document.getElementById("app") });
+        </script>
+    </body>
+</html>

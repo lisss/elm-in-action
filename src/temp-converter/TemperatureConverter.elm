@@ -1,10 +1,9 @@
-module TemperatureConverter exposing (main)
+module TemperatureConverter exposing (Model, Msg(..), initialModel, update, view)
 
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
-import Round exposing (round)
 
 
 type Msg
@@ -77,12 +76,3 @@ update msg model =
 
         TempFUpdated t ->
             updateTemperature t model (\x -> { model | tempF = x, tempC = convert toCelcius x })
-
-
-main : Program () Model Msg
-main =
-    Browser.sandbox
-        { init = initialModel
-        , view = view
-        , update = update
-        }
