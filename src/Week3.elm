@@ -147,4 +147,4 @@ parseDate =
 
 
 -- Timer - see timer/Timer.elm
--- Graceful Labeling
+-- TODO: Graceful Labeling
