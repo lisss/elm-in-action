@@ -3,11 +3,12 @@ module PhotoGroove exposing (main)
 import Array exposing (Array)
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (class, classList, id, name, src, title, type_)
+import Html.Attributes as Attr exposing (class, classList, id, name, src, title, type_)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode exposing (Decoder, bool, int, list, string, succeed)
 import Json.Decode.Pipeline exposing (optional, required)
+import Json.Encode as Encode
 import Random
 
 
@@ -58,6 +59,21 @@ viewLoaded photos selectedUrl chosenSize =
         ]
         []
     ]
+
+
+rangeSlider =
+    node "range-slider"
+
+
+viewFilter : String -> Int -> Html Msg
+viewFilter name magnitude =
+    div [ class "filter-slider" ]
+        [ label [] [ text name ]
+        , rangeSlider
+            [ Attr.max "11", Attr.property "val" (Encode.int magnitude) ]
+            []
+        , label [] [ text (String.fromInt magnitude) ]
+        ]
 
 
 type Msg
