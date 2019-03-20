@@ -1,45 +1,49 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" href="src/crud/crud.css" />
         <style>
             html {
                 font-family: Lato;
             }
-            body {
-                color: #4e4e4e;
-            }
-            body, button {
+            input,
+            button {
+                border-radius: 0.2rem;
+                border: 1px solid #ccc;
+                line-height: 1.5rem;
+                outline: none;
                 font-size: 1rem;
             }
-            input {
-                font-size: .8rem;
-            }
-            input, button {
-                border-radius: .25rem;
-                border: 1px solid #ccc;
-                line-height: 1.2rem;
-                outline: none;
+            button {
+                color: white;
+                padding: 0.5rem 1rem;
+                font-weight: 200;
             }
             h1 {
                 font-size: 1.2rem;
                 color: #313131;
+                font-weight: 700;
+            }
+            .section {
+                margin-bottom: 2rem;
             }
             .container {
-                padding: 16px;
+                padding: 1rem;
                 display: flex;
                 border: 1px solid #ccc;
-                border-radius: .25rem;
+                border-radius: 0.2rem;
             }
             .label {
                 margin: 0 12px;
             }
             .timer-container {
                 width: 240px;
-                padding: 12px;
+                padding: 1rem;
                 border: 1px solid #ccc;
-                border-radius: .25rem;
+                border-radius: 0.2rem;
             }
-            .elapsed, .slider {
+            .elapsed,
+            .slider {
                 margin: 12px 0;
             }
             .timer-label {
@@ -52,10 +56,10 @@
                 flex: 1;
                 display: flex;
                 border: 1px solid #ccc;
-                border-radius: .25rem;
+                border-radius: 0.2rem;
             }
             .progressbar {
-                background-color: #34bb97;
+                background-color: #2179ea;
             }
             .slider {
                 display: flex;
@@ -66,11 +70,9 @@
             }
             .reset-btn {
                 width: 100%;
-                padding: 0.5rem;
-                border: 1px solid  #ea4f3b;
+                border: 1px solid #ea4f3b;
                 background-color: #ea6756;
-                color: white;
-                border-radius: .25rem;
+                border-radius: 0.25rem;
                 cursor: pointer;
             }
         </style>

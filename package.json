@@ -2,7 +2,8 @@
   "scripts": {
     "build:photo": "elm make src/photo-groove/*.elm --output build/photo.js",
     "dev:photo": "elm-live src/photo-groove/*.elm --start-page=src/photo-groove/index.html -- --output build/photo.js --debug",
-    "dev:main": "elm-live src/Main.elm -- --output build/index.js --debug"
+    "dev:crud": "elm-live src/crud/*.elm --start-page=src/crud/index.html -x /api --proxyHost http://localhost:8002 -- --output build/crud.js --debug",
+    "dev:main": "elm-live src/Main.elm -x /api --proxyHost http://localhost:8002 -- --output build/index.js --debug"
   },
   "dependencies": {
     "elm-format": "0.8.1"
