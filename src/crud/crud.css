@@ -6,17 +6,28 @@ button {
   outline: none;
 }
 .crud-container {
-  width: 32rem;
+  width: 36rem;
   padding: 1rem;
   border: 1px solid #ccc;
   border-radius: 0.25rem;
 }
-.filter {
+.crud-content {
+  display: flex;
+}
+.left-view {
+  margin-right: 1rem;
+}
+.crud-field {
   display: flex;
   align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
 }
-.filter-text {
+.crud-label {
   margin-right: 12px;
+}
+.filter-input {
+  flex: 1;
 }
 .main-content {
   display: flex;
@@ -25,12 +36,13 @@ button {
 .update-details {
   display: flex;
   flex-direction: column;
+  margin-top: 2.8rem;
 }
 .list-container {
-  min-width: 14rem;
+  width: 100%;
+  min-height: 10rem;
   border: 1px solid #ccc;
   border-radius: 0.2rem;
-  margin-right: 1rem;
 }
 .current-list {
   list-style: none;
@@ -59,14 +71,6 @@ button {
 }
 .user-item.active {
   background-color:#d6d6d6;
-}
-.new-name {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 0.5rem;
-}
-.new-name--input {
-  margin-top: 6px;
 }
 .error {
   padding: 1rem;

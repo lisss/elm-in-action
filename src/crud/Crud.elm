@@ -6,24 +6,30 @@ import Html exposing (..)
 import Html.Attributes as A exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http
+import Http.Extras as Ex
 import Json.Decode as D exposing (Decoder, bool, dict, int, list, string, succeed)
 import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
-import Maybe.Extra exposing (isNothing)
+import Maybe.Extra exposing (isJust)
 import Task exposing (Task)
 
 
+apiUrl : String
+apiUrl =
+    "http://localhost:8000/api/users/"
+
+
 type Msg
-    = UserSelected UserJson
+    = UserSelected User
     | FilterTyped String
     | NewName String
     | NewSurname String
-    | UserCreate User
-    | UserUpdate (Maybe UserJson) User
-    | UserDelete (Maybe UserJson)
+    | UserCreate NewUser
+    | UserUpdate (Maybe User) NewUser
+    | UserDelete (Maybe User)
     | GotUsers (Result Http.Error Users)
-    | UserCreated (Result Http.Error UserJson)
-    | UserUpdated (Result Http.Error UserJson)
+    | UserCreated (Result Http.Error User)
+    | UserUpdated (Result Http.Error User)
     | UserDeleted (Result Http.Error Id)
 
 
@@ -36,26 +42,33 @@ type alias Id =
     Int
 
 
-type alias User =
+type alias NewUser =
     { name : String
     , surname : String
     }
 
 
+type alias User =
+    { id : Id
+    , name : String
+    , surname : String
+    }
+
+
 type alias Users =
-    Dict Id UserJson
+    Dict Id User
 
 
 type alias Model =
     { status : Status
     , users : Users
-    , selectedUser : Maybe UserJson
-    , newUser : User
+    , selectedUser : Maybe User
+    , newUser : NewUser
     , filter : String
     }
 
 
-isUserSelected : Model -> UserJson -> Bool
+isUserSelected : Model -> User -> Bool
 isUserSelected model u =
     case model.selectedUser of
         Nothing ->
@@ -65,34 +78,36 @@ isUserSelected model u =
             u.id == x.id
 
 
-isButtonDisabled : Model -> Bool
-isButtonDisabled model =
-    isNothing model.selectedUser
+isNewUserEntered : Model -> Bool
+isNewUserEntered model =
+    not <|
+        String.isEmpty model.newUser.name
+            || String.isEmpty model.newUser.surname
+
+
+isListItemSelected : Model -> Bool
+isListItemSelected model =
+    isJust model.selectedUser
+
+
+isCreateButtonDisabled : Model -> Bool
+isCreateButtonDisabled model =
+    not
+        (isNewUserEntered model)
 
 
 isUpdateButtonDisabled : Model -> Bool
 isUpdateButtonDisabled model =
-    String.isEmpty model.newUser.name
-        && String.isEmpty model.newUser.surname
-        || isButtonDisabled model
+    not <|
+        isNewUserEntered
+            model
+            && isListItemSelected model
 
 
-filterUserList : String -> List UserJson -> List UserJson
+filterUserList : String -> List User -> List User
 filterUserList s =
     List.filter
         (\x -> String.startsWith (String.toLower s) (String.toLower x.surname))
-
-
-makeUserName : String -> String -> String
-makeUserName n s =
-    if String.isEmpty n then
-        s
-
-    else if String.isEmpty s then
-        n
-
-    else
-        [ n, s ] |> List.intersperse ", " |> String.concat
 
 
 userList : Model -> List (Html Msg)
@@ -112,15 +127,10 @@ userList model =
                                 "user-item"
                         , onClick <| UserSelected user
                         ]
-                        [ text <| makeUserName user.surname user.name ]
+                        [ text <| user.surname ++ ", " ++ user.name ]
                 )
         )
     ]
-
-
-newValue : Maybe UserJson -> (UserJson -> String) -> String
-newValue us f =
-    us |> Maybe.map f |> Maybe.withDefault ""
 
 
 view : Model -> Html Msg
@@ -132,23 +142,26 @@ view model =
 
             Success ->
                 text ""
-        , div [ class "filter" ]
-            [ span [ class "filter-text" ] [ text "Filter prefix:" ]
-            , input [ class "", onInput FilterTyped ] []
-            ]
-        , div [ class "main-content" ]
-            [ div [ class "list-container" ] <| userList model
+        , div [ class "crud-content" ]
+            [ div [ class "left-view" ]
+                [ div [ class "crud-field" ]
+                    [ span [ class "crud-label" ] [ text "Filter prefix:" ]
+                    , input [ class "filter-input", onInput FilterTyped ] []
+                    ]
+                , div [ class "main-content" ]
+                    [ div [ class "list-container" ] <| userList model ]
+                ]
             , div [ class "update-details" ]
-                [ div [ class "new-name" ]
-                    [ text "Name:"
+                [ div [ class "crud-field" ]
+                    [ span [ class "crud-label" ] [ text "Name:" ]
                     , input
                         [ class "new-name--input"
                         , onInput NewName
                         ]
                         []
                     ]
-                , div [ class "new-name" ]
-                    [ text "Surname:"
+                , div [ class "crud-field" ]
+                    [ span [ class "crud-label" ] [ text "Surname:" ]
                     , input
                         [ class "new-name--input"
                         , onInput NewSurname
@@ -160,10 +173,10 @@ view model =
         , div [ class "" ]
             [ button
                 [ class "crud-btn"
-                , disabled <| model.newUser.name == "" && model.newUser.surname == ""
+                , disabled <| isCreateButtonDisabled model
                 , onClick <|
                     UserCreate <|
-                        User model.newUser.name model.newUser.surname
+                        NewUser model.newUser.name model.newUser.surname
                 ]
                 [ text "Create" ]
             , button
@@ -174,7 +187,7 @@ view model =
                 [ text "Update" ]
             , button
                 [ class "crud-btn crud-btn--delete"
-                , disabled <| isButtonDisabled model
+                , disabled <| not <| isListItemSelected model
                 , onClick <| UserDelete model.selectedUser
                 ]
                 [ text "Delete" ]
@@ -189,7 +202,7 @@ initialModel =
         Dict.empty
     , selectedUser = Nothing
     , newUser =
-        User "" ""
+        NewUser "" ""
     , filter = ""
     }
 
@@ -198,15 +211,14 @@ initialModel =
 -- TODO: refactor it
 
 
-createUser : Users -> UserJson -> Users
-createUser users user =
-    users |> Dict.insert user.id user
+createUser : User -> Users -> Users
+createUser user =
+    Dict.insert user.id user
 
 
-updateUser : Users -> UserJson -> Users
-updateUser users { id, name, surname } =
-    -- TODO: refactor
-    users |> Dict.update id (Maybe.map (\old -> { old | name = name, surname = surname }))
+updateUser : User -> Users -> Users
+updateUser { id, name, surname } =
+    Dict.update id (Maybe.map (\old -> { old | name = name, surname = surname }))
 
 
 deleteUser : Model -> Id -> Model
@@ -281,7 +293,7 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just u ->
-                    ( model, updateUserCmd u.id (User name surname) )
+                    ( model, updateUserCmd u.id (NewUser name surname) )
 
         UserDelete u ->
             case u of
@@ -295,10 +307,10 @@ update msg model =
             handleResponse resp model (\x -> { model | users = x })
 
         UserCreated resp ->
-            handleResponse resp model (\x -> { model | users = createUser model.users x })
+            handleResponse resp model (\x -> { model | users = createUser x model.users })
 
         UserUpdated resp ->
-            handleResponse resp model (\x -> { model | users = updateUser model.users x })
+            handleResponse resp model (\x -> { model | users = updateUser x model.users })
 
         UserDeleted resp ->
             handleResponse resp model (\x -> deleteUser model x)
@@ -307,24 +319,13 @@ update msg model =
             ( { model | filter = val }, Cmd.none )
 
 
-type alias UserJson =
-    { id : Id
-    , name : String
-    , surname : String
-    }
-
-
-userDecoder : Decoder UserJson
+userDecoder : Decoder User
 userDecoder =
     succeed
-        UserJson
+        User
         |> required "id" int
         |> required "name" string
         |> required "surname" string
-
-
-
--- TODO: refactor
 
 
 usersDecoder : Decoder Users
@@ -333,7 +334,7 @@ usersDecoder =
         |> D.map
             (\x ->
                 x
-                    |> List.map (\{ id, name, surname } -> ( id, UserJson id name surname ))
+                    |> List.map (\{ id, name, surname } -> ( id, User id name surname ))
                     |> Dict.fromList
             )
 
@@ -341,12 +342,12 @@ usersDecoder =
 initialCmd : Cmd Msg
 initialCmd =
     Http.get
-        { url = "http://localhost:8000/api/users/list.json"
+        { url = apiUrl ++ "list.json"
         , expect = Http.expectJson GotUsers usersDecoder
         }
 
 
-jsonEncUser : User -> Http.Body
+jsonEncUser : NewUser -> Http.Body
 jsonEncUser { name, surname } =
     E.object
         [ ( "name", E.string name )
@@ -355,21 +356,21 @@ jsonEncUser { name, surname } =
         |> Http.jsonBody
 
 
-createUserCmd : User -> Cmd Msg
+createUserCmd : NewUser -> Cmd Msg
 createUserCmd user =
     Http.post
-        { url = "http://localhost:8000/api/users/create.json"
+        { url = apiUrl ++ "create.json"
         , body = jsonEncUser user
         , expect = Http.expectJson UserCreated userDecoder
         }
 
 
-updateUserCmd : Id -> User -> Cmd Msg
+updateUserCmd : Id -> NewUser -> Cmd Msg
 updateUserCmd id user =
     Http.request
         { method = "PUT"
         , headers = []
-        , url = "http://localhost:8000/api/users/" ++ String.fromInt id ++ "/update.json"
+        , url = apiUrl ++ String.fromInt id ++ "/update.json"
         , body = jsonEncUser user
         , expect = Http.expectJson UserUpdated userDecoder
         , timeout = Nothing
@@ -377,17 +378,12 @@ updateUserCmd id user =
         }
 
 
-expectString : (Result Http.Error String -> msg) -> Http.Expect msg
-expectString toMsg =
-    Http.expectStringResponse toMsg Ex.responseToString
-
-
 deleteUserCmd : Id -> Cmd Msg
 deleteUserCmd id =
     Http.request
         { method = "DELETE"
         , headers = []
-        , url = "http://localhost:8000/api/users/" ++ String.fromInt id ++ "/delete.json"
+        , url = apiUrl ++ String.fromInt id ++ "/delete.json"
         , body = Http.emptyBody
         , expect =
             expectJson
