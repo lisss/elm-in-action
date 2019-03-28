@@ -38,11 +38,11 @@ myJsonString =
     MyJsonDecoder
         (\v ->
             case v of
-                Str i ->
-                    Ok i
+                Str r ->
+                    Ok r
 
                 _ ->
-                    Err "Wrong str type"
+                    Err "Not str"
         )
 
 
@@ -51,11 +51,11 @@ myJsonInt =
     MyJsonDecoder
         (\v ->
             case v of
-                Num i ->
-                    Ok i
+                Num r ->
+                    Ok r
 
                 _ ->
-                    Err "Wrong int type"
+                    Err "Not int"
         )
 
 

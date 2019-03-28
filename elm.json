@@ -5,7 +5,7 @@
         "src/temp-converter",
         "src/timer",
         "src/crud",
-        "src/date-picker",
+        "src/flights",
         "src/photo-groove"
     ],
     "elm-version": "0.19.0",
