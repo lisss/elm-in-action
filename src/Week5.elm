@@ -1,4 +1,4 @@
-module Week5 exposing (MyJsonDecoder(..), Path(..), Val(..), decodePath, decodeValue, keyValPairs, myJsonField, myJsonInt, myJsonString, path)
+module Week5 exposing (MyJsonDecoder(..), Path(..), Val(..), decodePath, decodeValue, keyValPairs, myJsonField, myJsonInt, myJsonString)
 
 import Dict
 import Json.Decode as J
@@ -109,7 +109,7 @@ keyValPairs (MyJsonDecoder d) =
 -- Dependent parsing
 -- > J.decodeString decodePath """{"path_type": "file", "value": "/foo/bar"}"""
 -- Ok (PathFile "/foo/bar")
--- > J.decodeString decodePath """{"path_type": "file", "value": {"host": "http://example.com", "port_": 80}}"""
+-- > J.decodeString decodePath """{"path_type": "url", "value": {"host": "http://example.com", "port_": 80}}"""
 -- Ok (PathUrl { host = "http://example.com", port_ = 80 })
 
 
@@ -134,4 +134,4 @@ decodePath =
 
 
 
--- Date picker
+-- Date picker - see src/flights/ & dev:fs script in package.json for trying it out
